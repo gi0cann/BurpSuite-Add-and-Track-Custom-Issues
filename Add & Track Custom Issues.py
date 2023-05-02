@@ -53,6 +53,7 @@ from javax.swing.undo import UndoManager # for undo and redo in text areas
 import csv # for importing and exporting to and from csv
 import json # for importing and exporting to and from json
 import os # for splitting the file name and file extension when importing and exporting
+import re
 
 
 #
@@ -146,7 +147,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 		# print text to output window
 		print(self._EXTENSION_NAME + " v" + self._EXTENSION_VERSION)
 		print("Created by James Morris")
-		print("https://github.com/jamesm0rr1s")
+		print("https://github.com/JamesMorris-BurpSuite/")
 
 		# end of BurpExtender
 		return
@@ -313,6 +314,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
 			# set content type to html
 			self._dictionaryOfTextPanes[longName].setContentType("text/html")
+			self._dictionaryOfTextPanes[longName].putClientProperty("html.disable", None)
 
 			# set text in text pane
 			self._dictionaryOfTextPanes[longName].setText(self._HTML_FOR_TEXT_PANES[0] + "&nbsp" + self._HTML_FOR_TEXT_PANES[1])
@@ -1232,6 +1234,12 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 		httpMessages = [CustomIHttpRequestResponse(comment, highlight, httpService, request, response)]
 
 		# create url
+		ipv6regex = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+		pattern = re.compile(ipv6regex)
+		match = pattern.match(host)
+		if match:
+		    host = "[" + host + "]"
+
 		url = URL(protocol + "://" + host + ":" + unicode(port) + path)
 
 		# create new issue
